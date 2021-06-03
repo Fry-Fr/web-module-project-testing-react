@@ -6,21 +6,70 @@ import Show from './../Show';
 
 const testShow = {
     //add in approprate test data structure here.
+    name:'Stranger Things',
+    summary:'',
+    seasons:[
+        {
+            episodes:[],
+            id:1,
+            name:''
+        },
+        {
+            episodes:[],
+            id:2,
+            name:''
+        }
+    ]
 }
 
 test('renders testShow and no selected Season without errors', ()=>{
+    render(<Show selectedSeason={'0'} show={testShow} />);
 });
 
 test('renders Loading component when prop show is null', () => {
+    render(<Show show={null} />);
+
+    const loadingComponent = screen.getByTestId('loading-container');
+
+    expect(loadingComponent).toBeInTheDocument();
+    expect(loadingComponent).toHaveTextContent(/fetching data.../i);
 });
 
 test('renders same number of options seasons are passed in', ()=>{
+    render(<Show selectedSeason={'none'} show={testShow} />);
+
+    const seasonOptions = screen.getAllByTestId('season-option');
+
+    expect(seasonOptions).toHaveLength(2);
 });
 
 test('handleSelect is called when an season is selected', () => {
+    const handleSelect = jest.fn(()=>{
+        return ("returned handleSelect")
+    })
+    render(<Show handleSelect={handleSelect} show={testShow} selectedSeason={'0'} />);
+
+    const option = screen.getByLabelText(/Select A Season/i);
+
+    userEvent.selectOptions(option, '1');
+    userEvent.selectOptions(option, '2');
+    expect(handleSelect.mock.calls).toHaveLength(2);
 });
 
-test('component renders when no seasons are selected and when rerenders with a season passed in', () => {
+test('component renders when no seasons are selected and when rerenders with a season passed in', async () => {
+    const { rerender } = render(<Show selectedSeason={'none'} show={testShow} />);
+
+    let episodesComponent = screen.queryByTestId('episodes-container');
+
+    expect(episodesComponent).not.toBeInTheDocument();
+    expect(episodesComponent).toBeFalsy();
+
+    rerender(<Show selectedSeason={'1'} show={testShow} />);
+
+    episodesComponent = screen.queryByTestId('episodes-container');
+
+    expect(episodesComponent).toBeInTheDocument();
+    expect(episodesComponent).toBeTruthy();
 });
 
 //Tasks:

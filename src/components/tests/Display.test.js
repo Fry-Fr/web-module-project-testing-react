@@ -1,3 +1,81 @@
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import Display from '../Display';
+import fetchShow from '../../api/fetchShow';
+jest.mock('../../api/fetchShow')
+
+fetchShow.mockResolvedValue({
+    name:'Stranger Things',
+    summary:'',
+    seasons:[
+        {
+            episodes:[],
+            id:1,
+            name:''
+        },
+        {
+            episodes:[],
+            id:2,
+            name:''
+        }
+    ]
+})
+
+test('renders without any passed in props', ()=>{
+    render(<Display />);
+});
+
+test('renders the Show component when button is clicked', async ()=>{
+
+    render(<Display />);
+
+    const button = screen.getByRole('button');
+    let data = screen.queryByLabelText(/select a season/i);
+
+    expect(data).not.toBeInTheDocument();
+    expect(data).toBeFalsy();
+
+    userEvent.click(button)
+
+    await waitFor(()=>{
+        data = screen.queryByLabelText(/select a season/i);
+
+        expect(data).toBeInTheDocument();
+        expect(data).toBeTruthy();
+    })
+    // screen.debug()
+});
+
+test('render to correct number of season objects when button is pressed', async ()=>{
+    render(<Display />);
+
+    const button = screen.getByRole('button');
+    let data = screen.queryAllByTestId('season-option');
+
+    userEvent.click(button);
+
+    await waitFor(()=>{
+        data = screen.getAllByTestId('season-option')
+        expect(data).toHaveLength(2);
+    })
+})
+
+test('display function is called when button is pressed', async ()=>{
+    const mockFunc = jest.fn(()=>{
+        return 'function called';
+    });
+
+    render(<Display displayFunc={mockFunc} />);
+
+    const button = screen.getByRole('button');
+
+    userEvent.click(button);
+
+    await waitFor(()=>{
+        expect(mockFunc.mock.calls).toHaveLength(1)
+    });
+});
 
 
 
