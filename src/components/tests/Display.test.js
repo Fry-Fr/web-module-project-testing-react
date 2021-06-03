@@ -62,20 +62,21 @@ test('render to correct number of season objects when button is pressed', async 
 })
 
 test('display function is called when button is pressed', async ()=>{
-    const displayfunc = jest.fn(()=>{
-        return ('function called')
+    const mockFunc = jest.fn(()=>{
+        return 'function called';
     });
 
-    render(<Display displayfunc={displayfunc} />);
+    render(<Display displayFunc={mockFunc} />);
 
     const button = screen.getByRole('button');
 
     userEvent.click(button);
-    await waitFor(()=>{expect(displayfunc.mock.calls).toBeCalled()});
 
+    await waitFor(()=>{
+        expect(mockFunc.mock.calls).toHaveLength(1)
+    });
+});
 
-    screen.debug()
-})
 
 
 
